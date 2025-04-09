@@ -13,8 +13,8 @@ services:
     # If you are running on Windows or Mac the shared volume will cause
     # an InnoDB error, uncomment the following lines:
     #
-    command:
-      'mysqld --innodb-flush-method=fsync'
+    #command:
+    #  'mysqld --innodb-flush-method=fsync'
 
   app:
     image: markz0r/eramba-app:c281
