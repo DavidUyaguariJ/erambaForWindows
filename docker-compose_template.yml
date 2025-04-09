@@ -1,0 +1,76 @@
+version: "3.7"
+services:
+  db:
+    image: markz0r/eramba-db
+    container_name: eramba-community-docker_db_1
+    restart: always
+    volumes:
+      - mysql-data:/var/lib/mysql
+    env_file:
+      - global_envars.cfg
+    environment:
+      - MYSQL_ROOT_PASSWORD=changethispassword
+    # If you are running on Windows or Mac the shared volume will cause
+    # an InnoDB error, uncomment the following lines:
+    #
+    command:
+      'mysqld --innodb-flush-method=fsync'
+
+  app:
+    image: markz0r/eramba-app:c281
+    container_name: eramba-community-docker_app_1
+    depends_on:
+      - db
+    restart: always
+    volumes:
+      - eramba-files:/var/www/sites/eramba_community/app/webroot/files
+      - eramba-backups:/var/www/sites/eramba_community/app/webroot/backups
+      - eramba-applogs:/var/www/sites/eramba_community/app/tmp/logs
+      - eramba-syslogs:/var/log
+    env_file:
+      - global_envars.cfg
+    environment:
+      - ERAMBA_HOSTNAME=app
+      - MYSQL_HOSTNAME=db
+      - DATABASE_PREFIX=
+      - SYNC_DB_WITH_HOST=true
+    extra_hosts:
+      - "eramba:172.17.0.1"
+    ports:
+      - "80:8080"
+
+volumes:
+  mysql-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: data/eramba/mysql
+
+  eramba-files:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: data/eramba/files
+
+  eramba-backups:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: data/eramba/backups
+
+  eramba-applogs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: data/eramba/erambalogs
+
+  eramba-syslogs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: data/eramba/systemlogs
